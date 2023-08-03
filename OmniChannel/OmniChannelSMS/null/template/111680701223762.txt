@@ -1,0 +1,5 @@
+equest URL: https://telehealthqa.zyter.net/Telehealth/updateBroadCastEmergencyMessageAsRead
+Request Method: POST
+Status Code: 200 
+{"id":"965204"}
+{"message":"Message has been read","errCode":null,"id":null}

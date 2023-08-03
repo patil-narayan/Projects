@@ -1,0 +1,12 @@
+CREATE TABLE `email_event_details` (
+`ID` int NOT NULL AUTO_INCREMENT,
+`DATE` timestamp NULL DEFAULT NULL,
+`EMAIL` varchar(50) DEFAULT NULL,
+`EVENT` varchar(50) DEFAULT NULL,
+`IP` varchar(255) DEFAULT NULL,
+`SG_EVENT_ID` varchar(15) DEFAULT NULL,
+`SG_MESSAGE_ID` varchar(15) DEFAULT NULL,
+`TIME_STAMP` mediumtext,
+`USER_AGENT` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`ID`)
+);

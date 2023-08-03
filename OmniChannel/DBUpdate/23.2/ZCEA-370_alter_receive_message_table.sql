@@ -1,0 +1,1 @@
+alter table receive_message drop column REFERRAL_NUM_MEDIA;

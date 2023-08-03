@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS template_type;
+CREATE TABLE template_type (
+ ID int NOT NULL AUTO_INCREMENT,
+ NAME varchar(100) DEFAULT NULL,
+ TYPE varchar(50) DEFAULT NULL,
+ FILE_PATH varchar(200) DEFAULT NULL,
+ PRIMARY KEY (ID)
+);

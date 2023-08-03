@@ -1,0 +1,1 @@
+ALTER TABLE notify_sms_audit change column title note VARCHAR(50);

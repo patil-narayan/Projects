@@ -1,0 +1,12 @@
+spring:
+  config:
+   activate:
+    on-profile: local
+  cloud:
+    config:
+      server:
+        git:
+          uri: "D:\\ProjectOmni\\configRepo"
+
+server:
+  port: 8888

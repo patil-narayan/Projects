@@ -1,0 +1,33 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+    include-stacktrace: never
+
+spring:
+  application:
+    name: OmniChannelSMS
+  config:
+    activate:
+      on-profile: local
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+EUREKA_HOST: localhost
+EUREKA_PORT: 8761
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka
+      instance:
+      preferIpAddress: true
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    ip-address: ${spring.cloud.client.ip-address}
+
+springdoc:
+  swagger-ui:
+    defaultModelsExpandDepth: -1

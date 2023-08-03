@@ -1,0 +1,51 @@
+server:
+  port: 8090
+  error:
+    include-message: always
+    include-stacktrace: never
+
+
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:configserver:http://localhost:8888
+  application:
+    name: omni-apigateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      routes:
+        - id: foos
+          uri: http://localhost:8090
+          predicates:
+            - Path=/foos/**
+  # r2dbc:
+  #   url: r2dbc:mysql://localhost:3306/tenant
+  #   username: santhosh
+  #   password: ganesha@99
+  #   initialization-mode: always
+  main:
+    web-environment: false
+
+EUREKA_HOST: localhost
+EUREKA_PORT: 8761
+
+
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka
+      instance:
+      preferIpAddress: true
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    ip-address: ${spring.cloud.client.ip-address}
+
+omnichannel:
+  singleSmsUrl: https://oc-dev.zyterk8s.net
+  campaignUrl: https://oc-dev-campaign.zyterk8s.net/campaign
+
+realm: http://localhost:8181/auth/realms/zyter

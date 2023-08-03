@@ -1,0 +1,217 @@
+pipeline {
+
+    // select agent to execute pipeline
+    agent { node { label 'docker' } }
+    
+    // different stages of the pipeline
+    stages {
+
+        // variables setup phase
+        stage('Variables setup phase') {
+            steps{
+                script{  
+
+                    // set all image variables variables 
+                    env.build_omnichannel_api_gateway=true
+                    env.omnichannel_api_gateway_tag="qa-1.0.8"
+
+                    env.build_omnichannel_config_server=false
+                    env.omnichannel_config_server_tag="qa-1.0.3"
+
+                    env.build_omnichannel_service_discovery=false
+                    env.omnichannel_service_discovery_tag="qa-1.0.3"
+
+                    env.build_omnichannel_sms=false
+                    env.omnichannel_sms_tag="qa-1.0.14"
+
+		    env.build_omnichannel_email=true
+		    env.omnichannel_email_tag="qa-1.0.0"
+                    
+
+                    if("${build_omnichannel_api_gateway}"=="true"){
+                        echo "============================================================="
+                        echo "|    Building omnichannel_api_gateway with tag: ${omnichannel_api_gateway_tag}|"
+                        echo "============================================================="
+                    }
+
+                    if("${build_omnichannel_config_server}"=="true"){
+                        echo "============================================================="
+                        echo "|    Building omnichannel_config_server with tag: ${omnichannel_config_server_tag}|"
+                        echo "============================================================="
+                    }
+
+                    if("${build_omnichannel_service_discovery}"=="true"){
+                        echo "============================================================="
+                        echo "|    Building omnichannel_service_discovery with tag: ${omnichannel_service_discovery_tag}|"
+                        echo "============================================================="
+                    }
+
+                     if("${build_omnichannel_sms}"=="true"){
+                        echo "============================================================="
+                        echo "|    Building omnichannel_sms with tag: ${omnichannel_sms_tag}|"
+                        echo "============================================================="
+                    }
+
+                    if("${build_omnichannel_email}"=="true"){
+                        echo "============================================================="
+                        echo "|    Building omnichannel_sms with tag: ${omnichannel_email_tag}|"
+                        echo "============================================================="
+                    }
+                
+                }
+            }  
+        }
+        
+        // login to AWS ECR
+        stage('Docker login'){
+            steps{
+                script{
+                    // docker login
+                    sh 'docker login -u AWS -p $(aws ecr get-login-password --region us-east-2) 226861556001.dkr.ecr.us-east-2.amazonaws.com'
+                }
+            }
+        }
+        
+        // maven build stage for all OmniChannel projects
+        stage('Maven Build'){
+            steps{
+                script{
+                    // api-gateway project build
+                    if("${build_omnichannel_api_gateway}"=="true"){
+                        dir('OmniChannel/omni-apigateway'){
+                            sh 'mvn clean install package -DskipTests'
+                        }
+                    }
+                    // service-discovery project build
+                    if("${build_omnichannel_service_discovery}"=="true"){
+                        dir('OmniChannel/omni-discovery'){
+                            sh 'mvn clean install package -DskipTests'
+                        }
+                    }
+                    
+                    // config-server project build
+                    if("${build_omnichannel_config_server}"=="true"){
+                        dir('OmniChannel/OmniChannel-config-server'){
+                            sh 'mvn clean install package -DskipTests'
+                        }
+                    }
+            
+                    // sms project build
+                    if("${build_omnichannel_sms}"=="true"){
+                        dir('OmniChannel/OmniChannelSMS')	{
+                            sh 'mvn clean install package -DskipTests'
+                        }
+                    }
+
+		    // email project build
+                    if("${build_omnichannel_email}"=="true"){
+                        dir('OmniChannel/OmniChannelEmail'){
+                            sh 'mvn clean install package -DskipTests'
+                        }
+                    }
+                }
+            }
+        }
+
+        // docker build stage for all OmniChannel projects
+        stage('Docker Build'){
+            steps{
+                script{
+                    // api-gateway project build
+                    if("${build_omnichannel_api_gateway}"=="true"){
+                        dir('OmniChannel/omni-apigateway'){
+                            sh "docker build -t 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-api-gateway:${omnichannel_api_gateway_tag} ."
+                        }
+                    }
+                    
+                    // service-discovery project build
+                    if("${build_omnichannel_service_discovery}"=="true"){
+                        dir('OmniChannel/omni-discovery'){
+                            sh "docker build -t 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-service-discovery:${omnichannel_service_discovery_tag} ."
+                        }
+                    }
+
+                    // config-server project build
+                    if("${build_omnichannel_config_server}"=="true"){
+                        dir('OmniChannel/OmniChannel-config-server'){
+                            sh "docker build -t 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-config:${omnichannel_config_server_tag} ."
+                        }
+                    }
+                    
+                    // sms project build
+                    if("${build_omnichannel_sms}"=="true"){
+                        dir('OmniChannel/OmniChannelSMS'){
+                            sh "docker build -t 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-sms:${omnichannel_sms_tag} ."
+                        }
+                    }
+
+		    // email project build
+                    if("${build_omnichannel_email}"=="true"){
+                        dir('OmniChannel/OmniChannelEmail'){
+                            sh "docker build -t 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-email:${omnichannel_email_tag} ."
+                        }
+                    }
+                }
+            }
+        }
+
+        // docker push stage for all OmniChannel projects
+        stage('Docker Push'){
+            steps{
+                script{
+                    // api-gateway image push
+                    if("${build_omnichannel_api_gateway}"=="true"){
+                        dir('OmniChannel/omni-apigateway'){
+                            sh "docker push 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-api-gateway:${omnichannel_api_gateway_tag}"
+                            // remove the image after push to save space
+                            sh "docker rmi 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-api-gateway:${omnichannel_api_gateway_tag}"
+                        }
+                    }
+                    
+                     // service-discovery image push
+                    if("${build_omnichannel_service_discovery}"=="true"){
+                        dir('OmniChannel/omni-discovery'){
+                            sh "docker push 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-service-discovery:${omnichannel_service_discovery_tag}"
+                            // remove the image after push to save space
+                            sh "docker rmi 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-service-discovery:${omnichannel_service_discovery_tag}"
+                        }
+                    }
+                    
+                    // config-server image push
+                    if("${build_omnichannel_config_server}"=="true"){
+                        dir('OmniChannel/OmniChannel-config-server'){
+                            sh "docker push 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-config:${omnichannel_config_server_tag}"
+                            // remove the image after push to save space
+                            sh "docker rmi 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-config:${omnichannel_config_server_tag}"
+                        }
+                    }
+                    
+                    // sms image push
+                    if("${build_omnichannel_sms}"=="true"){
+                        dir('OmniChannel/OmniChannelSMS'){
+                            sh "docker push 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-sms:${omnichannel_sms_tag}"
+                            // remove the image after push to save space
+                            sh "docker rmi 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-sms:${omnichannel_sms_tag}"
+                        }
+                    }
+
+		    // email image push
+                    if("${build_omnichannel_email}"=="true"){
+                        dir('OmniChannel/OmniChannelEmail'){
+                            sh "docker push 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-email:${omnichannel_email_tag}"
+                            // remove the image after push to save space
+                            sh "docker rmi 226861556001.dkr.ecr.us-east-2.amazonaws.com/omnichannel-sms:${omnichannel_email_tag}"
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Deleting workspace after pipeline execution
+        stage('Delete workspace'){
+           steps{ 
+                cleanWs()
+           }
+        }
+    }
+}

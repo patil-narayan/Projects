@@ -1,0 +1,22 @@
+CREATE TABLE `bulk_email_template` (
+`ID` int NOT NULL AUTO_INCREMENT,
+`NAME` varchar(100) DEFAULT NULL,
+`SUBJECT` varchar(255) DEFAULT NULL,
+`FILE_PATH` varchar(200) DEFAULT NULL,
+`TYPE` varchar(50) DEFAULT NULL,
+`RECORD_STATUS` tinyint DEFAULT '1',
+`CREATED_ON` timestamp NULL DEFAULT NULL,
+PRIMARY KEY (`ID`)
+);
+
+
+
+CREATE TABLE `email_distribution_list` (
+`ID` int NOT NULL AUTO_INCREMENT,
+`NAME` varchar(100) DEFAULT NULL,
+`FILE_PATH` varchar(200) DEFAULT NULL,
+`TYPE` varchar(50) DEFAULT NULL,
+`RECORD_STATUS` tinyint DEFAULT '1',
+`CREATED_ON` timestamp NULL DEFAULT NULL,
+PRIMARY KEY (`ID`)
+); 
