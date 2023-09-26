@@ -1,0 +1,3 @@
+ENTITY - Lifecycle : https://thorben-janssen.com/entity-lifecycle-model/
+
+BATCH with JPA  : https://medium.com/@wahyaumau/boost-jpa-bulk-insert-performance-by-90-3a6232d9068d
